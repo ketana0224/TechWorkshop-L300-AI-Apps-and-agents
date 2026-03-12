@@ -8,7 +8,6 @@ from azure.ai.projects.models import (
     ResponseTextFormatConfigurationJsonSchema
 ) 
 from azure.identity import DefaultAzureCredential
-from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
 from services.handoff_service import IntentClassification
 
@@ -19,13 +18,10 @@ with open(HANDOFF_AGENT_PROMPT_PATH, 'r', encoding='utf-8') as file:
     HANDOFF_AGENT_PROMPT = file.read()
 
 project_endpoint = os.environ["FOUNDRY_ENDPOINT"]
-foundry_key = os.getenv("FOUNDRY_KEY")
-
-credential = AzureKeyCredential(foundry_key) if foundry_key else DefaultAzureCredential()
 
 project_client = AIProjectClient(
     endpoint=project_endpoint,
-    credential=credential,
+    credential=DefaultAzureCredential(),
 )
 
 project_client=project_client
