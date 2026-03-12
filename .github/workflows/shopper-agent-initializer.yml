@@ -16,16 +16,15 @@ jobs:
     permissions:
       contents: read
 
-    env:
-      FOUNDRY_ENDPOINT: ${{ secrets.FOUNDRY_ENDPOINT }}
-      gpt_deployment: ${{ secrets.GPT_DEPLOYMENT }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Create .env file from secret
+        run: 'echo "$ENV" > src/.env'
+        shell: bash
+        env:
+          ENV: ${{ secrets.ENV }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -40,5 +39,12 @@ jobs:
       - name: Validate azure.ai.projects import
         run: python -c "from azure.ai.projects import AIProjectClient"
 
+      - name: Login via Azure CLI
+        uses: azure/login@v2.1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Run shopper agent initializer
-        run: python src/app/agents/shopperAgent_initializer.py
+        run: |
+          cd src/
+          python app/agents/shopperAgent_initializer.py
