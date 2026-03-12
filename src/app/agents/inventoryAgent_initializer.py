@@ -3,6 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
+from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
 from agent_processor import create_function_tool_for_agent
 from agent_initializer import initialize_agent
@@ -14,10 +15,13 @@ with open(IA_PROMPT_TARGET, 'r', encoding='utf-8') as file:
     IA_PROMPT = file.read()
 
 project_endpoint = os.environ["FOUNDRY_ENDPOINT"]
+foundry_key = os.getenv("FOUNDRY_KEY")
+
+credential = AzureKeyCredential(foundry_key) if foundry_key else DefaultAzureCredential()
 
 project_client = AIProjectClient(
     endpoint=project_endpoint,
-    credential=DefaultAzureCredential(),
+    credential=credential,
 )
 
 # Define the set of user-defined callable functions to use as tools (from MCP client)
